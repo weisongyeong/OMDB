@@ -1,24 +1,33 @@
-import Login from './Login'
-import Main from './Main'
-import Register from './Register'
-import Navbar from './Navbar'
-import React, {useState, useEffect} from 'react';
+import Login from './Pages/Login'
+import Home from './Pages/Outlet/Home'
+import Register from './Pages/Register'
+import Layout from './Pages/Layout'
+import CreateNewAdmin from './Pages/CreateNewAdmin'
+import CreateNewUser from './Pages/CreateNewUser'
+import NoPage from './Pages/NoPage'
+import React from 'react';
+import { BrowserRouter, Routes, Route, useContext } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
-    const apiKey = 'api_key=96f4f679b0cee46290970299c5656f9e';
-    const baseURL = 'https://api.themoviedb.org/3';
-  
-    const [url, setUrl] = React.useState({
-      popmovURL: `${baseURL}/discover/movie?sort_by=popularity.desc&${apiKey}`,
-      genreURL: `${baseURL}/genre/movie/list?${apiKey}`,
-      imgBaseURL: 'https://image.tmdb.org/t/p/w500'
-    });
 
-    return (<>
-        <Navbar />
-        {/* <Register /><Login /> */}
-        <Main URL={[url, setUrl]} />
-    </>)
+  return (
+    <>
+      <ToastContainer theme='colored' position='top-center'></ToastContainer>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />} >
+            <Route index element={<Home />} />
+          </Route>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="register-admin" element={<CreateNewAdmin />} />
+          <Route path="create-new-user" element={<CreateNewUser />} />
+          <Route path="*" element={<NoPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  )
 }
 
 export default App;

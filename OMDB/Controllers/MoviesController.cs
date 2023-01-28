@@ -18,10 +18,10 @@ namespace OMDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetMovies")]
-        public async Task<IActionResult> GetMovies()
+        [Route("GetMoviesRecommendation")]
+        public async Task<IActionResult> GetMoviesRecommendation()
         {
-            List<Movie> list = await _context.Movies.ToListAsync();
+            List<Rating> list = await _context.Ratings.ToListAsync();
 
             return StatusCode(StatusCodes.Status200OK, list);
         }

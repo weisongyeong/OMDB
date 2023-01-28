@@ -12,6 +12,7 @@ const MovieURLProvider = props => {
 
   const [url, setUrl] = React.useState({
     popmovURL: `${baseURL}/discover/movie?sort_by=popularity.desc&${apiKey}`,
+    searchURL: `${baseURL}/search/movie?${apiKey}`,
     genreURL: `${baseURL}/genre/movie/list?${apiKey}`,
     imgBaseURL: 'https://image.tmdb.org/t/p/w500'
   });

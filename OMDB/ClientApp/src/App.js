@@ -1,7 +1,6 @@
 import Login from './Pages/Login'
-import Home from './Pages/Outlet/Home'
+import Home from './Pages/Home'
 import Register from './Pages/Register'
-import Layout from './Pages/Layout'
 import CreateNewAdmin from './Pages/CreateNewAdmin'
 import CreateNewUser from './Pages/CreateNewUser'
 import NoPage from './Pages/NoPage'
@@ -16,9 +15,7 @@ const App = () => {
       <ToastContainer theme='colored' position='top-center'></ToastContainer>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout />} >
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="register-admin" element={<CreateNewAdmin />} />

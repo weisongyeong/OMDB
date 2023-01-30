@@ -9,11 +9,12 @@ const Login = () => {
     const [password, passwordupdate] = useState('');
     const usenavigate=useNavigate();
 
+    // clear user data when the user logged out
     useEffect(() => {
         sessionStorage.clear();
     }, []);
 
-
+    // call login api
     const ProceedLoginusingAPI = (e) => {
         e.preventDefault();
         if (validate()) {
@@ -22,7 +23,6 @@ const Login = () => {
                 Password: password
             })
             .then(res => {
-                console.log(res.data);
                 if (Object.keys(res).length === 0) {
                     toast.error('Login failed, invalid credentials');
                 } else {
@@ -39,6 +39,7 @@ const Login = () => {
         }
     }
 
+    // validation check
     const validate = () => {
         let result = true;
         if (username === '' || username === null) {

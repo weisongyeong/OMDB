@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Cors;
 using OMDB.Models.Authentication;
 using OMDB.Data;
 using Microsoft.EntityFrameworkCore;
-using OMDB.Models.MovieDomain;
 
 namespace OMDB.Controllers
 {

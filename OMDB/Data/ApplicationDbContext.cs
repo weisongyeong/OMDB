@@ -17,8 +17,6 @@ namespace OMDB.Data
             base.OnModelCreating(builder);
         }
 
-        public DbSet<Link> Links { get; set; }
-        public DbSet<Movie> Movies { get; set; }
-        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<CustomMovieRatingModel> CustomMovieRatings { get; set; }
     }
 }

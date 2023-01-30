@@ -10,6 +10,7 @@ const Register = () => {
     const [password, passwordupdate] = useState('');
     const navigate = useNavigate();
 
+    // registration
     const handlesubmit = (e) => {
         e.preventDefault();
         if (IsValidate()) {
@@ -28,6 +29,7 @@ const Register = () => {
         }
     }
 
+    // validation check
     const IsValidate = () => {
         let isproceed = true;
         let errormessage = 'Please enter the value in ';

@@ -10,6 +10,7 @@ const CreateNewUser = () => {
     const [password, passwordupdate] = useState('');
     const navigate = useNavigate();
 
+    // create new user
     const handlesubmit = (e) => {
         e.preventDefault();
         if (IsValidate()) {
@@ -28,6 +29,7 @@ const CreateNewUser = () => {
         }
     }
 
+    // validation check
     const IsValidate = () => {
         let isproceed = true;
         let errormessage = 'Please enter the value in ';

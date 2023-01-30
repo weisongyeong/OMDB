@@ -11,6 +11,8 @@ const MovieURLProvider = props => {
   const baseURL = 'https://api.themoviedb.org/3';
 
   const [url, setUrl] = React.useState({
+    baseURL : baseURL,
+    apiKey : apiKey,
     popmovURL: `${baseURL}/discover/movie?sort_by=popularity.desc&${apiKey}`,
     searchURL: `${baseURL}/search/movie?${apiKey}`,
     genreURL: `${baseURL}/genre/movie/list?${apiKey}`,

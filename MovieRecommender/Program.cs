@@ -1,75 +1,80 @@
-﻿using Microsoft.ML;
-using Microsoft.ML.Trainers;
-using MovieRecommender;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-MLContext mlContext = new MLContext();
-(IDataView trainingDataView, IDataView testDataView) = LoadData(mlContext);
-ITransformer model = BuildAndTrainModel(mlContext, trainingDataView);
-EvaluateModel(mlContext, testDataView, model);
-UseModelForSinglePrediction(mlContext, model);
-SaveModel(mlContext, trainingDataView.Schema, model);
-
-(IDataView training, IDataView test) LoadData(MLContext mlContext)
+namespace MovieRecommender
 {
-    var trainingDataPath = Path.Combine(Environment.CurrentDirectory, "Data", "recommendation-ratings-train.csv");
-    var testDataPath = Path.Combine(Environment.CurrentDirectory, "Data", "recommendation-ratings-test.csv");
-
-    IDataView trainingDataView = mlContext.Data.LoadFromTextFile<MovieRating>(trainingDataPath, hasHeader: true, separatorChar: ',');
-    IDataView testDataView = mlContext.Data.LoadFromTextFile<MovieRating>(testDataPath, hasHeader: true, separatorChar: ',');
-
-    return (trainingDataView, testDataView);
-}
-
-ITransformer BuildAndTrainModel(MLContext mlContext, IDataView trainingDataView)
-{
-    IEstimator<ITransformer> estimator = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "userIdEncoded", inputColumnName: "userId")
-    .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "movieIdEncoded", inputColumnName: "movieId"));
-    var options = new MatrixFactorizationTrainer.Options
+    class Program
     {
-        MatrixColumnIndexColumnName = "userIdEncoded",
-        MatrixRowIndexColumnName = "movieIdEncoded",
-        LabelColumnName = "Label",
-        NumberOfIterations = 20,
-        ApproximationRank = 100
-    };
+        public static void Main(string[] args)
+        {
+            double[,] ratings =
+            {
+                { 5, 1, 5, 1, 3, 3 }, 
+                { 4, 4, 4, 2, 4, 1 }, 
+                { 4, 3, 5, 5, 2, 5 },
+                { 2, 1, 4, 5, 3, 1 },
+                { 3, 2, 2, 2, 5, 2 },
+                { 4, 5, 3, 1, 1, 1 }
+            };
 
-    var trainerEstimator = estimator.Append(mlContext.Recommendation().Trainers.MatrixFactorization(options));
-    Console.WriteLine("=============== Training the model ===============");
-    ITransformer model = trainerEstimator.Fit(trainingDataView);
+            double[,] simMatrix = simMatx(ratings);
 
-    return model;
-}
 
-void EvaluateModel(MLContext mlContext, IDataView testDataView, ITransformer model)
-{
-    Console.WriteLine("=============== Evaluating the model ===============");
-    var prediction = model.Transform(testDataView);
-    var metrics = mlContext.Regression.Evaluate(prediction, labelColumnName: "Label", scoreColumnName: "Score");
-    Console.WriteLine("Root Mean Squared Error : " + metrics.RootMeanSquaredError.ToString());
-    Console.WriteLine("RSquared: " + metrics.RSquared.ToString());
-}
+            for (int i = 0; i < simMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < simMatrix.Length / simMatrix.GetLength(0); j++)
+                {
+                    Console.Write(simMatrix[i, j]);
+                    Console.Write(" ");
+                }
+                Console.WriteLine();
+            }
 
-void UseModelForSinglePrediction(MLContext mlContext, ITransformer model)
-{
-    Console.WriteLine("=============== Making a prediction ===============");
-    var predictionEngine = mlContext.Model.CreatePredictionEngine<MovieRating, MovieRatingPrediction>(model);
-    var testInput = new MovieRating { userId = 6, movieId = 10 };
+            // selectd movie id
+            int selectedMovieIdx = 2;
+            int totalNumCol = simMatrix.GetLength(0);
+            int totalNumRow = simMatrix.Length / simMatrix.GetLength(0);
+            int highestSimilarityMovieIdx = 0;
+            double maxSimilarityScore = 0;
 
-    var movieRatingPrediction = predictionEngine.Predict(testInput);
-    if (Math.Round(movieRatingPrediction.Score, 1) > 3.5)
-    {
-        Console.WriteLine("Movie " + testInput.movieId + " is recommended for user " + testInput.userId);
+            for (int i = 0; i < simMatrix.GetLength(0); i++)
+            {
+                if (simMatrix[i, selectedMovieIdx] != 1 && simMatrix[i, selectedMovieIdx] > maxSimilarityScore)
+                {
+                    maxSimilarityScore = simMatrix[i, selectedMovieIdx];
+                    highestSimilarityMovieIdx = i;
+                }
+            }
+
+            Console.WriteLine($"\nMovie {selectedMovieIdx + 1} has the highest similarity score with Movie {highestSimilarityMovieIdx + 1}.");
+
+
+        }
+
+
+        static double[,] simMatx(double[,] ratings)
+        {
+            int totalNumCol = ratings.GetLength(0);
+            int totalNumRow = ratings.Length / ratings.GetLength(0);
+            double[,] matrix = new double[totalNumRow, totalNumCol];
+            for (int i = 0; i < totalNumCol; i++)
+            {
+                for (int j = 0; j < totalNumRow; j++)
+                {
+                    double nom = 0;
+                    double den1 = 0;
+                    double den2 = 0;
+                    for (int k = 0; k < totalNumRow; k++)
+                    {
+                        nom += ratings[k, i] * ratings[k, j];
+                        den1 += Math.Pow(ratings[k, i], 2);
+                        den2 += Math.Pow(ratings[k, j], 2);
+                    }
+                    matrix[i, j] = nom / Math.Pow(den1 * den2, 0.5);
+                }
+            }
+            return matrix;
+        }
     }
-    else
-    {
-        Console.WriteLine("Movie " + testInput.movieId + " is not recommended for user " + testInput.userId);
-    }
-}
-
-void SaveModel(MLContext mlContext, DataViewSchema trainingDataViewSchema, ITransformer model)
-{
-    var modelPath = Path.Combine(Environment.CurrentDirectory, "Data", "MovieRecommenderModel.zip");
-
-    Console.WriteLine("=============== Saving the model to a file ===============");
-    mlContext.Model.Save(model, trainingDataViewSchema, modelPath);
 }

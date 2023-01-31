@@ -22,13 +22,14 @@ The softwares or tools that are required to run this movie application includes:
 ### Installation
 1. Open the 'OMDB.sln' project solution file using Visual Studio
 2. Configure your connection string in 'appsettings.json' file by data source value to be the server route.
-> if you don't have any server installed, it is recommended to install SQL Server Express. when the installation is done, Launch the command prompt in your computer, run the following codes to create the local database
-  - sqllocaldb create "OMDBDB"
-Kindly take note that OMDBDB is the database name which is the default value set in the connectring string. Hence, by following these steps, you do not have to configure the connection string
 3. Open package manager console run the following codes to create the database with required tables
   a. Add-Migration "Initial Migration"
   b. Update-Database
-3. Debug and run the application using IIS Express web server
+4. Debug and run the application using IIS Express web server
+
+> if you don't have any server installed, it is recommended to install SQL Server Express. when the installation is done, Launch the command prompt in your computer, run the following code to create the local database
+>  - sqllocaldb create "OMDBDB"
+> Kindly take note that OMDBDB is the database name which is the default value set in the connectring string. Hence, by following these steps, you do not have to configure the connection string
 
 ## Usage
 Important features of this OMDB application can be cateogorized into authority-and-authentication features and movie-app-related features.

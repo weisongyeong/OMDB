@@ -29,6 +29,7 @@ The softwares or tools that are required to run this movie application includes:
 
 > if you don't have any server installed, it is recommended to install SQL Server Express. when the installation is done, Launch the command prompt in your computer, run the following code to create the local database
 >  - sqllocaldb create "OMDBDB"
+
 > Kindly take note that OMDBDB is the database name which is the default value set in the connectring string. Hence, by following these steps, you do not have to configure the connection string
 
 ## Usage

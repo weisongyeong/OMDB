@@ -48,6 +48,7 @@ After they finish a registration, users would be redirected back to the login pa
 The first admin user can create an account by calling "register-admin" API via Postman with parameters "username", "email" and "password". The other admin accounts can be created by the first admin.
 The "register-admin" API link is provided as below:
 - register-admin API : https://localhost:44376/api/Authenticate/register
+> You are required to run the app to call the "register-admin" API
 
 ### Contraints for user account creation
 - Username can be in any formats

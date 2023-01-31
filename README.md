@@ -19,7 +19,7 @@ The softwares or tools that are required to run this movie application includes:
 
 ### Installation
 1. Open the OMDB.sln project solution file using Visual Studio
-2. Debug and run the application
+2. Debug and run the application using IIS Express web server
 
 ## Usage
 Important features of this OMDB application can be cateogorized into authority-and-authentication features and movie-app-related features.
@@ -47,8 +47,9 @@ After they finish a registration, users would be redirected back to the login pa
 ### For Admin User
 The first admin user can create an account by calling "register-admin" API via Postman with parameters "username", "email" and "password". The other admin accounts can be created by the first admin.
 The "register-admin" API link is provided as below:
-- register-admin API : https://localhost:44376/api/Authenticate/register
+- register-admin API : https://localhost:44376/api/Authenticate/register-admin
 > You are required to run the app to call the "register-admin" API
+> Change the port number is you are not using IIS Express to debug and run the app
 
 ### Contraints for user account creation
 - Username can be in any formats

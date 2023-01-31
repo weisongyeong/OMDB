@@ -1,5 +1,5 @@
-# Project Title
-A brief description of the movie application.
+# OMDB
+OMDB is a movie web application that users may use it to view different movie information like title, raiting and their similar movies. This OMDB app is built in two main frameworks which are .Net Core 7 and and React JS. The development process is done in Visual Studio.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -12,7 +12,7 @@ A brief description of the movie application.
 
 ### Prerequisites
 The softwares or tools that are required to run this movie application includes:
-- [.NET Core](https://dotnet.microsoft.com/download)
+- [.NET Core 7](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/en/download/)
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Postman](https://www.postman.com/downloads/)

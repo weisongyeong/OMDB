@@ -1,5 +1,6 @@
 import Login from './Pages/Login'
 import Home from './Pages/Home'
+import MovieDetail from './Pages/MovieDetail'
 import Register from './Pages/Register'
 import CreateNewAdmin from './Pages/CreateNewAdmin'
 import CreateNewUser from './Pages/CreateNewUser'
@@ -16,6 +17,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="movies/:id" element={<MovieDetail />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="register-admin" element={<CreateNewAdmin />} />

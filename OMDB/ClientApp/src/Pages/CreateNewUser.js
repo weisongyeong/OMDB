@@ -5,13 +5,14 @@ import { toast } from "react-toastify";
 
 const CreateNewUser = () => {
     const url = "https://localhost:44376/api/Authenticate/register";
-    const [username, usernameupdate] = useState('');
-    const [email, emailupdate] = useState('');
-    const [password, passwordupdate] = useState('');
+    const [username, usernameUpdate] = useState('');
+    const [email, emailUpdate] = useState('');
+    const [password, passwordUpdate] = useState('');
+    const [confirmPassword, confirmPasswordUpdate] = useState('');
     const navigate = useNavigate();
 
     // create new user
-    const handlesubmit = (e) => {
+    const HandleSubmit = (e) => {
         e.preventDefault();
         if (IsValidate()) {
             Axios.post(url, {
@@ -32,35 +33,21 @@ const CreateNewUser = () => {
     // validation check
     const IsValidate = () => {
         let isproceed = true;
-        let errormessage = 'Please enter the value in ';
-        if (username === '' || username === null) {
+        if (/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(email)) {
+            isproceed = true;
+        } else {
             isproceed = false;
-            errormessage += ' Username';
+            toast.warning('Please enter the valid email');
         }
-        if (email === null || email === '') {
+        if (/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/.test(password)) {
+            isproceed = true;
+        } else {
             isproceed = false;
-            errormessage += ' Email';
+            toast.warning('Please enter the password that contains 8 to 15 characters, at least one lowercase letter, one uppercase letter, one numeric digit, and one special character');
         }
-        if (password === null || password === '') {
+        if (password != confirmPassword) {
             isproceed = false;
-            errormessage += ' Password';
-        }
-
-        if(!isproceed){
-            toast.warning(errormessage)
-        }else{
-            if (/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(email)) {
-                isproceed = true;
-            } else {
-                isproceed = false;
-                toast.warning('Please enter the valid email');
-            }
-            if (/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/.test(password)) {
-                isproceed = true;
-            } else {
-                isproceed = false;
-                toast.warning('Please enter the password that contains 8 to 15 characters, at least one lowercase letter, one uppercase letter, one numeric digit, and one special character');
-            }
+            toast.warning('Your password and confirm password must be the same');
         }
         return isproceed;
     }
@@ -74,11 +61,11 @@ const CreateNewUser = () => {
                 <form
                     className="text-lg"
                     method="post"
-                    onSubmit={handlesubmit}>
+                    onSubmit={HandleSubmit}>
                     <div className="flex flex-col gap-4 my-5">
                         <label className="mx-2 select-none" htmlFor="user">Username</label>
                         <input
-                            onChange={e => usernameupdate(e.target.value)}
+                            onChange={e => usernameUpdate(e.target.value)}
                             className="border rounded-2xl py-1.5 px-3 focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
                             type="text"
                             id="user"
@@ -88,21 +75,31 @@ const CreateNewUser = () => {
                     <div className="flex flex-col gap-4 my-5">
                         <label className="mx-2 select-none" htmlFor="reg-email">Email</label>
                         <input
-                            onChange={e => emailupdate(e.target.value)}
+                            onChange={e => emailUpdate(e.target.value)}
                             className="border rounded-2xl py-1.5 px-3 focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
                             type="text"
-                            id="email"
+                            id="reg-email"
                             value={email} required>
                         </input>
                     </div>
                     <div className="flex flex-col gap-4 my-5">
                         <label className="mx-2 select-none" htmlFor="reg-pass">Password</label>
                         <input
-                            onChange={e => passwordupdate(e.target.value)}
+                            onChange={e => passwordUpdate(e.target.value)}
                             className="border rounded-2xl py-1.5 px-3 focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
                             type="password"
-                            id="pass"
+                            id="reg-pass"
                             value={password} required>
+                        </input>
+                    </div>
+                    <div className="flex flex-col gap-4 my-5">
+                        <label className="mx-2 select-none" htmlFor="reg-confpass">Confirm Password</label>
+                        <input
+                            onChange={e => confirmPasswordUpdate(e.target.value)}
+                            className="border rounded-2xl py-1.5 px-3 focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
+                            type="password"
+                            id="reg-confpass"
+                            value={confirmPassword} required>
                         </input>
                     </div>
                     <div className="flex justify-center">

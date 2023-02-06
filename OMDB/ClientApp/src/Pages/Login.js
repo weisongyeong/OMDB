@@ -7,7 +7,7 @@ const Login = () => {
     const url = "https://localhost:44376/api/Authenticate/login";
     const [username, usernameupdate] = useState('');
     const [password, passwordupdate] = useState('');
-    const usenavigate=useNavigate();
+    const navigate=useNavigate();
 
     // clear user data when the user logged out
     useEffect(() => {
@@ -30,7 +30,7 @@ const Login = () => {
                     sessionStorage.setItem('username', username);
                     sessionStorage.setItem('token', res.data.token);
                     sessionStorage.setItem('role', res.data.role);
-                    usenavigate('/');
+                    navigate('/');
                 }
             })
             .catch((err) => {

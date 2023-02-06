@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OMDB.Migrations
 {
     /// <inheritdoc />
-    public partial class InitMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,38 +48,6 @@ namespace OMDB.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomMovieRatings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Movie1Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie2Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie3Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie4Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie5Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie6Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie7Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie8Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie9Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie10Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie11Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie12Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie13Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie14Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie15Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie16Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie17Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie18Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie19Rating = table.Column<int>(type: "int", nullable: false),
-                    Movie20Rating = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomMovieRatings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -245,9 +213,6 @@ namespace OMDB.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "CustomMovieRatings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

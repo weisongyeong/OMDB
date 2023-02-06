@@ -1,109 +1,16 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import { MovieURLContext } from '../index'
 import { toast } from "react-toastify";
+import Loading from "../Component/Loading";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import React from "react";
-
-
-const ViewMovieDetailsModal = ({ id, title, poster_path, vote_average, imgURL, color, overview }) => {
-    const [showModal, setShowModal] = React.useState(false);
-    const [similarMovies, setSimilarMovies] = React.useState([]);
-    const [url, setUrl] = React.useContext(MovieURLContext);
-
-
-    // show movies recommendation
-    async function handleSimilarMovies(e, id)
-    {
-        e.preventDefault();
-        let tempUrl = `${url.baseURL}/movie/${id}/similar?${url.apiKey}`;
-        const res = await axios.get(tempUrl);
-        let movies = res.data.results;
-        if (movies == '') {
-            toast.error('No Movies Found');
-            return;
-        }
-        setSimilarMovies(movies);
-        
-        setShowModal(true);
-    }
-    
-    return (
-        <>
-            <button
-                className="text-white font-bold uppercase text-sm rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                type="button"
-                onClick={(e) => handleSimilarMovies(e, id)}
-            >
-                <div key={id} className="group m-4 w-56 text-base bg-black transition duration-300 ease-in-out hover:transform hover:scale-125">
-                    <img className="w-full" src={poster_path ? imgURL : "http://via.placeholder.com/1080x1580"} alt={title}></img>
-                    <div className="flex justify-between items-center p-2 h-20">
-                        <div className="my-1 mx-2 font-bold text-white">{title}</div>
-                        <div className="p-1 rounded font-bold" style={{ color: color }}>{vote_average}</div>
-                    </div>
-                </div>
-            </button>
-            {showModal ? (
-                <>
-                    <div
-                        className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
-                    >
-                        <div className="relative w-auto my-6 mx-auto max-w-3xl">
-                            {/*content*/}
-                            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                                {/*header*/}
-                                <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
-                                    <h3 className="text-3xl font-semibold">
-                                        Movies Recommendation for '{title}'
-                                    </h3>
-                                    <button
-                                        className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                                        onClick={() => setShowModal(false)}
-                                    >
-                                        <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                                            ×
-                                        </span>
-                                    </button>
-                                </div>
-                                <div>
-                                    <ul className="flex flex-col justify-center items-center my-4">
-                                    {similarMovies && similarMovies.map(similarMovie =>
-                                    {
-                                        const { id, title} = similarMovie;
-                                        return (
-                                            <li key={id}>{title}</li>
-                                        )
-                                    })}
-                                    </ul>
-                                </div>
-                                <div></div>
-                                {/*footer*/}
-                                <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                                    <button
-                                        className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                        type="button"
-                                        onClick={() => setShowModal(false)}
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-                </>
-            ) : null}
-        </>
-    );
-}
-
-
 const Home = () => {
     const usenavigate = useNavigate();
-    const [url, setUrl] = React.useContext(MovieURLContext);
+    const [loading, setLoading] = useState(false);
+    const url = useContext(MovieURLContext);
     const [lastUrl, setLastUrl] = useState(url.popmovURL);
     const [movies, setMovies] = useState();
     const [pageData, setPageData] = useState();
@@ -134,6 +41,7 @@ const Home = () => {
             setPageData(res.data);
         }
         fetchMovies()
+        setLoading(true);
     }, [lastUrl]);
 
 
@@ -207,10 +115,10 @@ const Home = () => {
             return (
                 <>
                     <div className="flex gap-4">
-                        <Link className="hover:bg-gray-800 text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" to="/create-new-user">Create New User</Link>
+                        <Link className=" text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/create-new-user">Create New User</Link>
                     </div>
                     <div className="flex gap-4">
-                        <Link className="hover:bg-gray-800 text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" to="/register-admin">Create New Admin</Link>
+                        <Link className=" text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/register-admin">Create New Admin</Link>
                     </div>
                 </>
             )
@@ -226,9 +134,9 @@ const Home = () => {
                         <a className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-red-200 to-yellow-400 select-none" >OMDB</a>
                     </div>
                     <div className="flex gap-4">
-                        <button className="hover:bg-gray-800 text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" onClick={(e) => setLastUrl(url.popmovURL)}>Home</button>
+                        <button className=" text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" onClick={(e) => setLastUrl(url.popmovURL)}>Home</button>
                     </div>
-                    <Authorized isAdmin={sessionStorage.getItem('role')} />
+
                     <form onSubmit={SearchMovie} >
                         <input type="text"
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -239,8 +147,13 @@ const Home = () => {
                 </div>
                 <div className='flex items-center gap-7'>
                     <div className="flex gap-4 items-center">
-                        <div>Welcome back, {sessionStorage.getItem('username')}</div>
-                        <Link className="hover:bg-gray-800 text-gray-400 hover:text-white rounded px-3 py-1 tracking-wider select-none" to="/login">Logout</Link>
+                    </div>
+                </div>
+                <div className="group rounded text-gray-400 relative inline-block w-[15rem] select-none">
+                    <div className="group-hover:text-white text-center py-2">{sessionStorage.getItem('username')}</div>
+                    <div className="group-hover:flex hidden absolute bg-gray-900 flex-col w-full rounded-md pt-2">
+                        <Authorized isAdmin={sessionStorage.getItem('role')} />
+                        <Link className= "text-gray-400 text-center hover:text-white rounded w-full px-3 py-1 tracking-wider select-none" to="/login">Logout</Link>
                     </div>
                 </div>
             </nav>
@@ -253,17 +166,29 @@ const Home = () => {
                         <h1 className="mx-28 my-10 text-3xl font-bold text-white">Searching for '{searchTerm}'</h1>
                 }
                 <div className="flex justify-center flex-wrap">
-                    {movies && movies.map(movie => {
-                        const { id, title, poster_path, vote_average, overview } = movie;
-                        let imgURL = `${url.imgBaseURL + poster_path}`;
-                        let color = vote_average > 7 ? 'lightgreen' : (vote_average < 5 ? 'red' : 'orange');
-                        return (
-                            <div className="flex flex-col">
-                                <ViewMovieDetailsModal id={id} title={title} poster_path={poster_path} vote_average={vote_average}
-                                imgURL={imgURL} color={color} overview={overview}/>
-                            </div>
-                        )
-                    })}
+                    {
+                        loading ? movies && movies.map(movie => {
+                            const { id, title, poster_path, vote_average, overview } = movie;
+                            let imgURL = `${url.imgBaseURL + poster_path}`;
+                            let color = vote_average > 7 ? 'lightgreen' : (vote_average < 5 ? 'red' : 'orange');
+                            return (
+                                <Link
+                                    key={id}
+                                    className="m-4 rounded"
+                                    to={`/movies/${id}`}
+                                >
+                                    <div className="w-56 text-base rounded bg-black transition duration-300 ease-in-out hover:transform hover:scale-125">
+                                        <img className="w-full" src={poster_path ? imgURL : "http://via.placeholder.com/1080x1580"} alt={title}></img>
+                                        <div className="flex justify-between items-center p-2 h-20">
+                                            <div className="my-1 mx-2 font-bold text-white">{title}</div>
+                                            <div className="p-1 rounded font-bold" style={{ color: color }}>{vote_average}</div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            )
+                        }) :
+                            < Loading />
+                    }
                 </div>
             </main>
 

@@ -12,8 +12,8 @@ using OMDB.Data;
 namespace OMDB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230130105158_Init Migration")]
-    partial class InitMigration
+    [Migration("20230202014843_Initial Migration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,79 +221,6 @@ namespace OMDB.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("OMDB.Models.MovieDomain.CustomMovieRatingModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Movie10Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie11Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie12Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie13Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie14Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie15Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie16Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie17Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie18Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie19Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie1Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie20Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie2Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie3Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie4Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie5Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie6Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie7Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie8Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Movie9Rating")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CustomMovieRatings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

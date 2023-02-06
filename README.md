@@ -20,17 +20,11 @@ The softwares or tools that are required to run this movie application includes:
 - [SQL Server Express](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 
 ### Installation
-1. Open the 'OMDB.sln' project solution file using Visual Studio
-2. Configure your connection string in 'appsettings.json' file by data source value to be the server route.
-3. Open package manager console run the following codes to create the database with required tables
-  a. Add-Migration "Initial Migration"
-  b. Update-Database
+1. Launch the command prompt in your computer, run the following code to create the local server. (SQL Server Express required)
+  >  - sqllocaldb create "CLTServer"
+2. Launch SSMS, connect to the server "(localdb)\CLTServer" with Windows Authentication. When the connection is done, create a database named "MovieAppDB". In the database "MovieAppDB", run the SQL script file named 'DbScript.sql' to import the database.
+3. Open the 'OMDB.sln' project solution file using Visual Studio
 4. Debug and run the application using IIS Express web server
-
-> if you don't have any server installed, it is recommended to install SQL Server Express. when the installation is done, Launch the command prompt in your computer, run the following code to create the local database
->  - sqllocaldb create "OMDBDB"
-
-> Kindly take note that OMDBDB is the database name which is the default value set in the connectring string. Hence, by following these steps, you may skip step 2
 
 ## Usage
 Important features of this OMDB application can be cateogorized into authority-and-authentication features and movie-app-related features.
@@ -57,10 +51,14 @@ When they run this web application, the app will first redirect the page to a lo
 After they finish a registration, users would be redirected back to the login page. From there, they can insert the username and password they just created and only they login to the movie app and authenticated to fully utilize the general-user features of the movie application.
 
 ### For Admin User
-The first admin user can create an account by calling "register-admin" API via Postman with parameters "username", "email" and "password". The other admin accounts can be created by the first admin.
-The "register-admin" API link is provided as below:
-- register-admin API : https://localhost:44376/api/Authenticate/register-admin
-> You are required to run the app to call the "register-admin" API
+The first admin account already included in the 'DbScript.sql' script file. The first admin account detail is provided as follow:
+  - Username = "Admin02"
+  - Email = "admin02@omdb.com"
+  - Password = "Admin02@"
+
+Developers don't need to create it on their own. However, if any developers want to intialize the database on their own without running the particular script file, The first admin user account can be created by calling "register-first-admin" API GET request via Postman.
+The "register-first-admin" API GET request link is provided as below:
+- register-admin API : https://localhost:44376/api/Authenticate/register-first-admin
 
 > Change the port number is you are not using IIS Express to debug and run the app
 
@@ -76,4 +74,3 @@ The "register-admin" API link is provided as below:
 ## Support
 If you need any assistance with the movie application, feel free to reach out to the maintainers by opening an issue or sending an email to:
 - Email: weisong0402@gmail.com
-

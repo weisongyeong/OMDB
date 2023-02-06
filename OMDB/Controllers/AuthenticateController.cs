@@ -179,7 +179,7 @@ namespace OMDB.Controllers
         //        SecurityStamp = Guid.NewGuid().ToString(),
         //        UserName = "Admin02"
         //    };
-        //    var result = await userManager.CreateAsync(user, "Admin02@omdb");
+        //    var result = await userManager.CreateAsync(user, "Admin02@";
         //    if (!result.Succeeded)
         //        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 

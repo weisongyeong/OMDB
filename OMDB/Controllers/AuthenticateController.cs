@@ -175,11 +175,11 @@ namespace OMDB.Controllers
         //{
         //    ApplicationUser user = new ApplicationUser()
         //    {
-        //        Email = "admin02@omdb.com",
+        //        Email = "admin01@omdb.com",
         //        SecurityStamp = Guid.NewGuid().ToString(),
-        //        UserName = "Admin02"
+        //        UserName = "Admin01"
         //    };
-        //    var result = await userManager.CreateAsync(user, "Admin02@";
+        //    var result = await userManager.CreateAsync(user, "Admin01@omdb";
         //    if (!result.Succeeded)
         //        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 

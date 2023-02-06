@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.Data;
 
 namespace OMDB.Controllers
 {
+    [EnableCors("AllowAllHeaders")]
     [Route("api/[controller]")]
     [ApiController]
     public class MovieRatingsController : ControllerBase
@@ -21,7 +23,7 @@ namespace OMDB.Controllers
             _context = context;
         }
 
-        // Index
+        // index
         [HttpGet]
         [Route("get-ratings")]
         [Authorize(Roles = "Admin")]
@@ -37,9 +39,10 @@ namespace OMDB.Controllers
             return Ok(recentRatings);
         }
 
-        // Create
+        // create
         [HttpPost]
         [Route("give-rating")]
+        [Authorize]
         public async Task<IActionResult> GiveRating(RatingModel ratingModel)
         {
             var rating = new RatingModel()
@@ -56,9 +59,10 @@ namespace OMDB.Controllers
             return Ok(new Response { Status = "Success", Message = "Movie Rated Successfully" });
         }
 
-        // Update rating
+        // update rating
         [HttpPut]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> ChangeRating([FromRoute] int id, ChangeRatingModel ratingModel)
         {
             var rating = await _context.Ratings.FindAsync(id);
@@ -75,9 +79,10 @@ namespace OMDB.Controllers
             return NotFound();
         }
 
-        // Delete rating
+        // delete rating
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteRating([FromRoute] int id)
         {
             var rating = await _context.Ratings.FindAsync(id);

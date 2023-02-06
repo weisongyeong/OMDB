@@ -4,30 +4,35 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from "react-toastify";
 
-const MovieDetail = () => {
-    let { id } = useParams();
+const SimilarMoviesTag = () => {
+    let { title, id } = useParams();
     const [loading, setLoading] = useState(false);
     const [similarMovies, setSimilarMovies] = useState();
     const navigate=useNavigate();
 
     useEffect(() => {
-            axios.get(`https://localhost:44376/api/Movies/${id}`)
+        let token = sessionStorage.getItem('token');
+        axios.get(`https://localhost:44376/api/Movies/${id}`, {
+            headers: {
+                'Authorization': `bearer ${token}`
+            }
+        })
             .then(res => {
                 let movies = res.data;
                 if (movies == '') {
-                    toast.error('No Similar Movies Found');
+                    toast.error('No similar movies found');
                     navigate('/');
                 }
                 setSimilarMovies(movies);
                 setLoading(true);
             })
-        }, [])
+    }, [])
 
     return (
         <>
             <div className="flex justify-center items-center py-10">
                 <div className="relative shadow-2xl w-[30rem] px-14 py-5 bg-gray-100 rounded-md">
-                    <h1 className="font-bold text-3xl my-10 py-1 text-center tracking-wider select-none">Similar Movies</h1>
+                    <h1 className="font-bold text-3xl my-10 py-1 text-center tracking-wider">Similar Movies to '{title}'</h1>
                     <ol className="text-lg my-5">
                         {
                             loading ? similarMovies.map(similarMovie => {
@@ -48,4 +53,4 @@ const MovieDetail = () => {
     )
 }
 
-export default MovieDetail;
+export default SimilarMoviesTag;

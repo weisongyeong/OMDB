@@ -39,6 +39,8 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Secret"]))
         };
     });
+
+// enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllHeaders",

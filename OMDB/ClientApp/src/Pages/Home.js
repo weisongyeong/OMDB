@@ -108,10 +108,9 @@ const Home = () => {
     }
 
 
-    // authorized admin functionality
-    const Authorized = (props) => {
-        const isAdmin = props.isAdmin;
-        if (isAdmin) {
+    // authorized link for admin
+    const AuthorizedLink = ({IsAdmin}) => {
+        if (IsAdmin) {
             return (
                 <>
                     <div className="flex gap-4">
@@ -152,7 +151,7 @@ const Home = () => {
                 <div className="group rounded text-gray-400 relative inline-block w-[15rem] select-none">
                     <div className="group-hover:text-white text-center py-2">{sessionStorage.getItem('username')}</div>
                     <div className="group-hover:flex hidden absolute bg-gray-900 flex-col w-full rounded-md pt-2">
-                        <Authorized isAdmin={sessionStorage.getItem('role')} />
+                        <AuthorizedLink IsAdmin={sessionStorage.getItem('role')} />
                         <Link className= "text-gray-400 text-center hover:text-white rounded w-full px-3 py-1 tracking-wider select-none" to="/login">Logout</Link>
                     </div>
                 </div>
@@ -175,10 +174,10 @@ const Home = () => {
                                 <Link
                                     key={id}
                                     className="m-4 rounded"
-                                    to={`/movies/${id}`}
+                                    to={`/movie/${title}/${id}`}
                                 >
                                     <div className="w-56 text-base rounded bg-black transition duration-300 ease-in-out hover:transform hover:scale-125">
-                                        <img className="w-full" src={poster_path ? imgURL : "http://via.placeholder.com/1080x1580"} alt={title}></img>
+                                        <img className="w-full" src={poster_path ? imgURL : "https://via.placeholder.com/1080x1580"} alt={title}></img>
                                         <div className="flex justify-between items-center p-2 h-20">
                                             <div className="my-1 mx-2 font-bold text-white">{title}</div>
                                             <div className="p-1 rounded font-bold" style={{ color: color }}>{vote_average}</div>

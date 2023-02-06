@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -7,12 +9,14 @@ using OMDB.Data;
 using OMDB.Models.Authentication;
 using OMDB.Models.MovieDomain;
 using OMDB.Models.MovieDTO;
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace OMDB.Controllers
 {
+    [EnableCors("AllowAllHeaders")]
     [Route("api/[controller]")]
     [ApiController]
     public class MoviesController : ControllerBase
@@ -24,10 +28,26 @@ namespace OMDB.Controllers
             _context = context;
         }
 
+        // index
+        [HttpGet]
+        [Route("get-movies")]
+        [Authorize]
+        public async Task<IActionResult> GetMovies()
+        {
+            var movies = _context.Movies;
+            var newMovies = await (from movie in movies
+                                   orderby movie.MovieId descending
+                                   select movie)
+                                .Take(10)
+                                .ToListAsync();
+
+            return Ok(newMovies);
+        }
 
         // create
         [HttpPost]
         [Route("insert-movie")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> InsertMovie(MovieModel movieModel)
         {
             var movie = new MovieModel()
@@ -42,9 +62,50 @@ namespace OMDB.Controllers
             return Ok(new Response { Status = "Success", Message = "Movie inserted Successfully" });
         }
 
+        // update
+        [HttpPut]
+        [Route("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateMovie([FromRoute] int id, UpdateMovieModel movieModel)
+        {
+            var movie = await _context.Movies.FindAsync(id);
+
+            if (movie != null)
+            {
+                movie.Title = movieModel.Title;
+                movie.Genres = movieModel.Genres;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(movie);
+            }
+
+            // return status code 404
+            return NotFound();
+        }
+
+        // delete
+        [HttpDelete]
+        [Route("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteMovie([FromRoute] int id)
+        {
+            var movie = await _context.Movies.FindAsync(id);
+
+            if (movie != null)
+            {
+                _context.Remove(movie);
+                await _context.SaveChangesAsync();
+                return Ok(new Response { Status = "Success", Message = "Movie Deleted Successfully" });
+            }
+
+            // return status code 404
+            return NotFound();
+        }
 
         [HttpGet]
         [Route("{tmdbId:int}")]
+        [Authorize]
         public async Task<IActionResult> GetMovieRecommendation([FromRoute] int tmdbId)
         {
             // data cleaning for same movie rated twice by same user

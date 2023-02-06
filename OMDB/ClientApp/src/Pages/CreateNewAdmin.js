@@ -15,10 +15,15 @@ const CreateNewAdmin = () => {
     const HandleSubmit = (e) => {
         e.preventDefault();
         if (IsValidate()) {
+            let token = sessionStorage.getItem('token');
             Axios.post(url, {
                 username: username,
                 email: email,
                 password: password
+            }, {
+                headers: {
+                    'Authorization': `bearer ${token}`
+                }
             })
             .then((res) => {
                 toast.success('Registered successfully.')

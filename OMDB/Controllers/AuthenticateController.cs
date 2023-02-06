@@ -14,6 +14,8 @@ using OMDB.Models.Authentication;
 using OMDB.Data;
 using Microsoft.EntityFrameworkCore;
 using OMDB.Models.MovieDTO;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace OMDB.Controllers
 {
@@ -45,6 +47,7 @@ namespace OMDB.Controllers
                 var userId = await userManager.GetUserIdAsync(user);
                 var userRoles = await userManager.GetRolesAsync(user);
 
+                // write claims for the user
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
@@ -57,9 +60,10 @@ namespace OMDB.Controllers
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
 
+                // define security key
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
-                // write webtoken
+                // generate Jwt web token
                 var token = new JwtSecurityToken(
                     issuer: _configuration["JWT:ValidIssuer"],
                     audience: _configuration["JWT:ValidAudience"],
@@ -68,14 +72,17 @@ namespace OMDB.Controllers
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                     );
 
+                // return status code 200 with token, token's expired date, user id and user role
                 return Ok(new
                 {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    token = new JwtSecurityTokenHandler().WriteToken(token), // serializes a JwtSecurityToken into a JWT
                     expiration = token.ValidTo,
                     Id = userId,
                     role = userRoles
                 });
             }
+
+            // return status code 401
             return Unauthorized();
         }
 
@@ -106,6 +113,7 @@ namespace OMDB.Controllers
 
         [HttpPost]
         [Route("register-admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -143,28 +151,38 @@ namespace OMDB.Controllers
 
         [HttpGet]
         [Route("get-users")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             // get all users
             var newUsers = await userManager.Users.Take(10).ToListAsync();
 
+
+            // return status code 200
             return Ok(newUsers);
         }
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize]
         public async Task<IActionResult> ChangeUserPassword([FromRoute] string id, ChangePasswordModel passwordModel)
         {
             var user = await userManager.FindByIdAsync(id);
+
+            // return status code 500 if user does not exists
             if (user == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User does not exists" });
             }
 
+            // change password
             var result = await userManager.ChangePasswordAsync(user, passwordModel.CurrentPassword, passwordModel.NewPassword);
+
+            // return status code 500 for failure
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Password changing failed! Please check user details and try again." });
 
+            // return status code 200 for success
             return Ok(new Response { Status = "Success", Message = "Password changed successfully!" });
         }
 

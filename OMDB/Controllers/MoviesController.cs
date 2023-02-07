@@ -62,6 +62,21 @@ namespace OMDB.Controllers
             return Ok(new Response { Status = "Success", Message = "Movie inserted Successfully" });
         }
 
+        // read
+        [HttpGet]
+        [Route("{id:int}")]
+        public async Task<IActionResult> GetMovie([FromRoute] int id)
+        {
+            var movie = await _context.Movies.FindAsync(id);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(movie);
+        }
+
         // update
         [HttpPut]
         [Route("{id:int}")]
@@ -104,41 +119,44 @@ namespace OMDB.Controllers
         }
 
         [HttpGet]
-        [Route("{tmdbId:int}")]
+        [Route("reco/{id:int}")]
         [Authorize]
-        public async Task<IActionResult> GetMovieRecommendation([FromRoute] int tmdbId)
+        public async Task<IActionResult> GetMovieRecommendation([FromRoute] int id)
         {
-            // data cleaning for same movie rated twice by same user
             var ratings = _context.Ratings;
-            var cleanedDSet = await (from r in ratings
-                               group r by new { r.UserId, r.MovieId }
-                               into movieGroup
-                               select new
-                               {
-                                   movieGroup.Key.UserId,
-                                   movieGroup.Key.MovieId,
-                                   rating = (from r in movieGroup
-                                             select r.Rating).Average()
-                               }).ToListAsync();
-
-
-            // convert tmdb id to the corresding movie id in the database
             var tmdbLinks = _context.Links;
-            var selectedMovieId = await (from l in tmdbLinks
-                                         where l.TmdbId == tmdbId 
-                                         select l.MovieId).FirstOrDefaultAsync();
+            var movies = _context.Movies;
+            
+            // merge to rating table with movie table and link table to get the tmdb id and movie title
+            // data cleaning for same users rated twice the same movies
+            var cleanedDSet = await (from r in ratings
+                                     join m in movies
+                                     on r.MovieId equals m.MovieId
+                                     into movieRatingTemps
+                                     from movieRatingTemp in movieRatingTemps
+                                     join l in tmdbLinks
+                                     on movieRatingTemp.MovieId equals l.MovieId
+                                     into tmdbMovieRatingTemps
+                                     from tmdbMovieRatingTemp in tmdbMovieRatingTemps
+                                     group r by new { r.UserId, tmdbMovieRatingTemp.TmdbId, movieRatingTemp.Title}
+                                     into movieGroup
+                                     select new
+                                     {
+                                         movieGroup.Key.UserId,
+                                         MovieId = movieGroup.Key.TmdbId,
+                                         movieGroup.Key.Title,
+                                         rating = (from r in movieGroup
+                                                   select r.Rating).Average()
+                                     }).ToArrayAsync();
 
-            // return status code 500 if corresponding movie does not exist
-            if(selectedMovieId == null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "The corresponding movie id does not exists" });
-
-            // find out all the users who rated the movie and also other movies they rated
+            // find out all the users who rated the movie and also the other movies they rated
             var usersRatedTheMovie = (from user in cleanedDSet
-                                      where user.MovieId == selectedMovieId
+                                      where user.MovieId == id
                                       select new
                                       {
                                           user.UserId,
                                           user.MovieId,
+                                          user.Title,
                                           user.rating
                                       });
 
@@ -146,12 +164,13 @@ namespace OMDB.Controllers
             var otherMovieRatedBySelectedUsers = (from movie in cleanedDSet
                                                  join user in usersRatedTheMovie
                                                  on movie.UserId equals user.UserId
-                                                 where movie.MovieId != selectedMovieId
-                                                 group movie by movie.MovieId
+                                                 where movie.MovieId != id
+                                                 group movie by new { movie.MovieId, movie.Title}
                                                  into movieTemp
                                                  select new
                                                  {
-                                                     movieId = movieTemp.Key,
+                                                     movieTemp.Key.MovieId,
+                                                     movieTemp.Key.Title,
                                                      userIdWithRating = (from r in movieTemp
                                                                          select new
                                                                          {
@@ -161,34 +180,36 @@ namespace OMDB.Controllers
                                                  });
 
             // group the target movie id with each of the other movies on users who rated both
-            var ratingGroups = new List<Tuple<int, List<double>, List<double>>>();
+            var ratingGroups = new List<Tuple<int?, string, double[], double[]>>();
             foreach (var movie in otherMovieRatedBySelectedUsers)
             {
-                var mId = movie.movieId;
+                var movieId = movie.MovieId;
+                var title = movie.Title;
                 var moviefilteredOnMovieId = (from m in usersRatedTheMovie
                                               join r in movie.userIdWithRating
                                               on m.UserId equals r.UserId
-                                              select m.rating).ToList();
+                                              select m.rating).ToArray();
                 var filteredOnMovieId = (from m in usersRatedTheMovie
                                          join r in movie.userIdWithRating
                                          on m.UserId equals r.UserId
-                                         select r.rating).ToList();
-                ratingGroups.Add(Tuple.Create(mId, moviefilteredOnMovieId, filteredOnMovieId));
+                                         select r.rating).ToArray();
+                ratingGroups.Add(Tuple.Create(movieId, title, moviefilteredOnMovieId, filteredOnMovieId));
             }
 
             // Calculate the 3 similarity indices for each of the group
             List<SimilarMovieModel> similar = new List<SimilarMovieModel>();
             foreach (var rating in ratingGroups)
             {
-                if (rating.Item3.Count < 20)
+                if (rating.Item3.Length < 20)
                     continue;
-                double cosSimIndex = CosSimilarity(rating.Item2, rating.Item3);
-                double pearSimIndex = PearsCorrSimilarity(rating.Item2, rating.Item3);
-                double jaccSimIndex = JaccSimilarity(rating.Item2, rating.Item3);
+                double cosSimIndex = CosSimilarity(rating.Item3, rating.Item4);
+                double pearSimIndex = PearsCorrSimilarity(rating.Item3, rating.Item4);
+                double jaccSimIndex = JaccSimilarity(rating.Item3, rating.Item4);
                 similar.Add(
                     new SimilarMovieModel
                     {
                         movieId = rating.Item1,
+                        title = rating.Item2,
                         cosSim = cosSimIndex,
                         pearSim = pearSimIndex,
                         jaccSim = jaccSimIndex
@@ -198,24 +219,17 @@ namespace OMDB.Controllers
             // find out the top 20 similar movies and push their respective titles and genres to the list
             var topSimilar = (from s in similar
                               orderby -s.pearSim
-                              select s.movieId).Take(20).ToList();
-            var foundTopSimilar = new List<MovieModel>();
-            foreach (var simId in topSimilar)
-            {
-                var movie = await _context.Movies.FindAsync(simId);
-                if (movie != null)
-                    foundTopSimilar.Add(movie);
-            }
+                              select s).Take(20).ToList();
 
-            return Ok(foundTopSimilar);
+            return Ok(topSimilar);
         }
 
 
         // Jaccard Similarity index
-        public static double JaccSimilarity(List<double> targetMovie, List<double> comparedMovie)
+        public static double JaccSimilarity(double[] targetMovie, double[] comparedMovie)
         {
             int i = 0;
-            int end = targetMovie.Count;
+            int end = targetMovie.Length;
             double interceptCount = 0;
 
             do
@@ -225,13 +239,13 @@ namespace OMDB.Controllers
                 i++;
             } while (i < end);
 
-            double unionCount = targetMovie.Count + comparedMovie.Count - interceptCount;
+            double unionCount = targetMovie.Length + comparedMovie.Length - interceptCount;
 
             return interceptCount / unionCount;
         }
 
         // Pearson Correlation Coefficient
-        public static double PearsCorrSimilarity(List<double> targetMovie, List<double> comparedMovie)
+        public static double PearsCorrSimilarity(double[] targetMovie, double[] comparedMovie)
         {
             double meanTargetMovie = targetMovie.Average();
             double meanComparedMovie = comparedMovie.Average();
@@ -249,7 +263,7 @@ namespace OMDB.Controllers
             }
 
             int i = 0;
-            int end = targetMovie.Count;
+            int end = targetMovie.Length;
             do
             {
                 sum3 += (targetMovie[i] - meanTargetMovie) * (comparedMovie[i] - meanComparedMovie);
@@ -261,7 +275,7 @@ namespace OMDB.Controllers
 
 
         // Cosine Similarity Index
-        public static double CosSimilarity(List<double> targetMovie, List<double> comparedMovie)
+        public static double CosSimilarity(double[] targetMovie, double[] comparedMovie)
         {
             double sum1 = 0;
             double sum2 = 0;
@@ -278,7 +292,7 @@ namespace OMDB.Controllers
             }
 
             int i = 0;
-            int end = targetMovie.Count;
+            int end = targetMovie.Length;
             do
             {
                 sum3 += targetMovie[i] * comparedMovie[i];

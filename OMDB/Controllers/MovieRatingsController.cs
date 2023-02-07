@@ -59,6 +59,21 @@ namespace OMDB.Controllers
             return Ok(new Response { Status = "Success", Message = "Movie Rated Successfully" });
         }
 
+        // read
+        [HttpGet]
+        [Route("UserId/{userId}")]
+        public async Task<IActionResult> GetRating([FromRoute] string userId)
+        {
+            var rating = await _context.Ratings.Where(r => r.UserId == userId).ToListAsync();
+
+            if (rating == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(rating);
+        }
+
         // update rating
         [HttpPut]
         [Route("{id:int}")]

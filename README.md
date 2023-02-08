@@ -56,13 +56,16 @@ Admin user can login this movie application by using an pre-existing admin accou
 The username and password are stated as below:
   - Username: Admin01
   - Password: Admin01@omdb
+
 In the movie application, there is no way to create an admin user account if you are not a admin. Such action is to prevent general user from creating it. However, If any situations where the user table got truncated by accident. The first admin user account can be created by calling "register-first-admin" API GET request via Postman.
+
 The registered admin account detail is provided as follow:
   - Username = "Admin01"
   - Email = "admin01@omdb.com"
   - Password = "Admin01@omdb"
+  
 The "register-first-admin" API GET request link is provided as below:
-- register-admin API : https://localhost:44376/api/Authenticate/register-first-admin
+  - register-admin API : https://localhost:44376/api/Authenticate/register-first-admin
 
 > Change the port number is you are not using IIS Express to debug and run the app
 

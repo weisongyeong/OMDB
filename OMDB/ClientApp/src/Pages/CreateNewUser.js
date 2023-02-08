@@ -4,7 +4,7 @@ import Axios from 'axios';
 import { toast } from "react-toastify";
 
 const CreateNewUser = () => {
-    const url = "https://localhost:44376/api/Authenticate/register";
+    const url = "api/authenticate/register";
     const [username, usernameUpdate] = useState('');
     const [email, emailUpdate] = useState('');
     const [password, passwordUpdate] = useState('');

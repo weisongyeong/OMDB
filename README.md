@@ -1,5 +1,5 @@
 # OMDB
-OMDB is a movie web application that users may use it to view different movie information like title, raiting and their similar movies. This OMDB app is built in two main frameworks which are .Net Core 7 and and React JS. The development process is done in Visual Studio.
+OMDB is a movie web application that users may use it to view different movie information like title, rating and their similar movies. This OMDB app is built in two main frameworks which are .Net Core 7 and and React JS. The development process is done in Visual Studio.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -22,7 +22,7 @@ The softwares or tools that are required to run this movie application includes:
 ### Installation
 1. Launch the command prompt in your computer, run the following code to create the local server. (SQL Server Express required)
   >  - sqllocaldb create "CLTServer"
-2. Launch SSMS, connect to the server "(localdb)\CLTServer" with Windows Authentication. When the connection is done, create a database named "MovieAppDB". In the database "MovieAppDB", run the SQL script file named 'DbScript.sql' to import all the tables. Import the table data from the CSV files in the folder "Table Data" to the corresponding tables.
+2. Launch SSMS, connect to the server "(localdb)\CLTServer" with Windows Authentication. When the connection is done, create a database named "MovieAppDB". In the database "MovieAppDB", run the SQL script file named 'DbScript.sql' to import all the data.
 3. Open the 'OMDB.sln' project solution file using Visual Studio
 4. Debug and run the application using IIS Express web server
 
@@ -32,14 +32,15 @@ Important features of this OMDB application can be cateogorized into authority-a
 ### Movie-app-related features
 - View different movies
 - Check movie' title and rating
-- click movie image to view similar movies
+- Click movie image to view similar movies
 - Search for a movie
 
 ### Authority-and-authentication features
 1. Admin can do
   a. Create a new general user account
   b. Create an admin account
-  c. Utilize all movie-app-related features
+  c. Change the similarity algorithm and minimum number of sample data in settings.
+  d. Utilize all movie-app-related features
 2. General user can do
   a. Utilize all movie-app-related features
 
@@ -51,8 +52,12 @@ When they run this web application, the app will first redirect the page to a lo
 After they finish a registration, users would be redirected back to the login page. From there, they can insert the username and password they just created and only they login to the movie app and authenticated to fully utilize the general-user features of the movie application.
 
 ### For Admin User
-The first admin user account can be created by calling "register-first-admin" API GET request via Postman.
-The first admin account detail is provided as follow:
+Admin user can login this movie application by using an pre-existing admin account and password.
+The username and password are stated as below:
+  - Username: Admin01
+  - Password: Admin01@omdb
+In the movie application, there is no way to create an admin user account if you are not a admin. Such action is to prevent general user from creating it. However, If any situations where the user table got truncated by accident. The first admin user account can be created by calling "register-first-admin" API GET request via Postman.
+The registered admin account detail is provided as follow:
   - Username = "Admin01"
   - Email = "admin01@omdb.com"
   - Password = "Admin01@omdb"

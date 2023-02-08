@@ -8,7 +8,8 @@ const context =  [
     "/api/authenticate",
     "/api/movies",
     "/api/movieratings",
-    "/api/movielinks"
+    "/api/movielinks",
+    "/api/settings"
 ];
 
 module.exports = function(app) {

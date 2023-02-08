@@ -35,10 +35,18 @@ namespace OMDB.Controllers
         public async Task<IActionResult> GetMovies()
         {
             var movies = _context.Movies;
+            var links = _context.Links;
             var newMovies = await (from movie in movies
+                                   join link in links
+                                   on movie.MovieId equals link.MovieId
                                    orderby movie.MovieId descending
-                                   select movie)
-                                .Take(10)
+                                   select new
+                                   {
+                                       MovieId = link.TmdbId,
+                                       movie.Title,
+                                       movie.Genres
+                                   })
+                                .Take(20)
                                 .ToListAsync();
 
             return Ok(newMovies);
@@ -126,6 +134,9 @@ namespace OMDB.Controllers
             var ratings = _context.Ratings;
             var tmdbLinks = _context.Links;
             var movies = _context.Movies;
+            var setting = await _context.Settings.FindAsync(1);
+            int minSampleNum = setting.SampleNum;
+            string algorithm = setting.SimilarityAlgorithm;
             
             // merge to rating table with movie table and link table to get the tmdb id and movie title
             // data cleaning for same users rated twice the same movies
@@ -196,11 +207,11 @@ namespace OMDB.Controllers
                 ratingGroups.Add(Tuple.Create(movieId, title, moviefilteredOnMovieId, filteredOnMovieId));
             }
 
-            // Calculate the 3 similarity indices for each of the group
+            // calculate the 3 similarity indices for each of the group
             List<SimilarMovieModel> similar = new List<SimilarMovieModel>();
             foreach (var rating in ratingGroups)
             {
-                if (rating.Item3.Length < 20)
+                if (rating.Item3.Length < minSampleNum)
                     continue;
                 double cosSimIndex = CosSimilarity(rating.Item3, rating.Item4);
                 double pearSimIndex = PearsCorrSimilarity(rating.Item3, rating.Item4);
@@ -216,16 +227,33 @@ namespace OMDB.Controllers
                     });
             }
 
-            // find out the top 20 similar movies and push their respective titles and genres to the list
-            var topSimilar = (from s in similar
-                              orderby -s.pearSim
-                              select s).Take(20).ToList();
+
+            // based on the algorithm, find out the top 20 similar movies and push their respective titles and genres to the list
+            List<SimilarMovieModel> topSimilar = new List<SimilarMovieModel>();
+            if (algorithm == "Cosine Similarity Index")
+            {
+                topSimilar = (from s in similar
+                                  orderby -s.cosSim
+                                  select s).Take(20).ToList();
+            }
+            if (algorithm == "Jaccard Similarity Index")
+            {
+                topSimilar = (from s in similar
+                                  orderby -s.jaccSim
+                                  select s).Take(20).ToList();
+            }
+            if (algorithm == "Pearson Correlation Coefficient")
+            {
+                topSimilar = (from s in similar
+                                  orderby -s.pearSim
+                                  select s).Take(20).ToList();
+            }
 
             return Ok(topSimilar);
         }
 
 
-        // Jaccard Similarity index
+        // Jaccard Similarity Index
         public static double JaccSimilarity(double[] targetMovie, double[] comparedMovie)
         {
             int i = 0;

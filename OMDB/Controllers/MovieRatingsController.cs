@@ -33,7 +33,7 @@ namespace OMDB.Controllers
             var recentRatings = await (from rating in ratings
                                 orderby rating.Id descending
                                 select rating)
-                                .Take(10)
+                                .Take(20)
                                 .ToListAsync();
 
             return Ok(recentRatings);
@@ -59,12 +59,12 @@ namespace OMDB.Controllers
             return Ok(new Response { Status = "Success", Message = "Movie Rated Successfully" });
         }
 
-        // read
+        // retrieve movie rating from user
         [HttpGet]
-        [Route("UserId/{userId}")]
-        public async Task<IActionResult> GetRating([FromRoute] string userId)
+        [Route("get-rating/{movieId}")]
+        public async Task<IActionResult> GetRating([FromRoute] int movieId, GetRatingModel ratingModel)
         {
-            var rating = await _context.Ratings.Where(r => r.UserId == userId).ToListAsync();
+            var rating = await _context.Ratings.FirstOrDefaultAsync(r => r.MovieId == movieId && r.UserId == ratingModel.UserId);
 
             if (rating == null)
             {

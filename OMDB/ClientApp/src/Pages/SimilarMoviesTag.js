@@ -14,7 +14,7 @@ const SimilarMoviesTag = () => {
 
     useEffect(() => {
         let token = sessionStorage.getItem('token');
-        axios.get(`https://localhost:44376/api/Movies/reco/${id}`, {
+        axios.get(`api/movies/reco/${id}`, {
             headers: {
                 'Authorization': `bearer ${token}`
             }

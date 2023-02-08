@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Login = () => {
-    const url = "https://localhost:44376/api/Authenticate/login";
+    const url = "api/authenticate/login";
     const [username, usernameupdate] = useState('');
     const [password, passwordupdate] = useState('');
     const navigate=useNavigate();

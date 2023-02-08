@@ -44,6 +44,11 @@ namespace OMDB.Data
                 entity.Property(e => e.UserId).HasColumnName("userId");
             });
 
+            builder.Entity<SettingModel>(entity =>
+            {
+                entity.Property(e => e.SimilarityAlgorithm).HasMaxLength(450);
+            });
+
             base.OnModelCreating(builder);
         }
 
@@ -53,6 +58,6 @@ namespace OMDB.Data
 
         public virtual DbSet<RatingModel> Ratings { get; set; }
 
-
+        public virtual DbSet<SettingModel> Settings { get; set; }
     }
 }

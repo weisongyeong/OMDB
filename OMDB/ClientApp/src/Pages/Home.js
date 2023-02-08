@@ -12,7 +12,7 @@ const Home = () => {
     const [loading, setLoading] = useState(false);
     const url = useContext(MovieURLContext);
     const [lastUrl, setLastUrl] = useState(url.popmovURL);
-    const [movies, setMovies] = useState();
+    const [movies, setMovies] = useState([]);
     const [pageData, setPageData] = useState();
     const [totalPages, setTotalPages] = useState();
     const [currPageNum, setCurrPageNum] = useState(1);
@@ -113,20 +113,17 @@ const Home = () => {
         if (IsAdmin) {
             return (
                 <>
-                    <div className="flex gap-4">
-                        <Link className=" text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/create-new-user">Create New User</Link>
-                    </div>
-                    <div className="flex gap-4">
-                        <Link className=" text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/register-admin">Create New Admin</Link>
-                    </div>
+                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/create-new-user">Create New User</Link>
+                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/register-admin">Create New Admin</Link>
+                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/settings">Settings</Link>
                 </>
             )
         }
     }
 
-
     return (
         <>
+            {/*NAVBAR*/}
             <nav className="bg-gray-900 h-16 flex text-white font-semibold px-10 justify-between items-center">
                 <div className='flex items-center gap-4'>
                     <div>
@@ -134,36 +131,40 @@ const Home = () => {
                     </div>
                     <div className="flex gap-4">
                         <button className=" text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" onClick={(e) => setLastUrl(url.popmovURL)}>Home</button>
-                    </div>
-
-                    <form onSubmit={SearchMovie} >
-                        <input type="text"
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search"
-                            className="py-1 px-2 bg-gray-700 border rounded-xl border-[#333] text-[#999] placeholder-[#999] focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
-                        />
-                    </form>
-                </div>
-                <div className='flex items-center gap-7'>
-                    <div className="flex gap-4 items-center">
+                        <Link className=" text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" to="/new-movies">New Movies</Link>
                     </div>
                 </div>
                 <div className="group rounded text-gray-400 relative inline-block w-[15rem] select-none">
                     <div className="group-hover:text-white text-center py-2">{sessionStorage.getItem('username')}</div>
-                    <div className="group-hover:flex hidden absolute bg-gray-900 flex-col w-full rounded-md pt-2">
+                    <div className="group-hover:flex hidden absolute bg-gray-900 flex-col w-full rounded-md py-2">
                         <AuthorizedLink IsAdmin={sessionStorage.getItem('role')} />
                         <Link className= "text-gray-400 text-center hover:text-white rounded w-full px-3 py-1 tracking-wider select-none" to="/login">Logout</Link>
                     </div>
                 </div>
             </nav>
 
+            {/*MOVIES AREA*/}
             <main className="px-4 pb-6">
-                {
-                    lastUrl.startsWith(url.popmovURL) ?
-                        <h1 className="mx-28 my-10 text-3xl font-bold text-white">Popular Movies</h1>
-                        :
-                        <h1 className="mx-28 my-10 text-3xl font-bold text-white">Searching for '{searchTerm}'</h1>
-                }
+                <div className="flex flex-between items-center justify-between">
+
+                    {/*MOVIE AREA TITLE*/}
+                    {
+                        lastUrl.startsWith(url.popmovURL) ?
+                            <h1 className="mx-28 my-10 text-3xl font-bold text-white">Popular Movies</h1>
+                            :
+                            <h1 className="mx-28 my-10 text-3xl font-bold text-white">Searching for '{searchTerm}'</h1>
+                    }
+
+                    {/*SEARCH BAR*/}
+                    <form onSubmit={SearchMovie} >
+                        <input type="text"
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search"
+                            className="mx-28 my-10 py-1 px-2 bg-gray-700 border rounded-xl border-[#333] text-[#999] placeholder-[#999] focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
+                        />
+                    </form>
+
+                </div>
                 <div className="flex justify-center flex-wrap">
                     {
                         loading ? movies && movies.map(movie => {
@@ -191,6 +192,7 @@ const Home = () => {
                 </div>
             </main>
 
+            {/*PAGINATION*/}
             <div className="flex justify-center bg-gray-900 p-[1rem] shadow-[0_-3px_5px_3px_rgba(0, 43, 91, .5)]">
                 <button disabled={prevPageDisabled} onClick={ToPrevPage} className="flex justify-center items-center px-1 text-white rounded disabled:cursor-default disabled:text-gray-700 hover:bg-gray-800 disabled:hover:bg-transparent" type="button">
                     <ArrowBackIosNewIcon />

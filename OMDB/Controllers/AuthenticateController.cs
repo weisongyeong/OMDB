@@ -155,8 +155,7 @@ namespace OMDB.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             // get all users
-            var newUsers = await userManager.Users.Take(10).ToListAsync();
-
+            var newUsers = await userManager.Users.ToListAsync();
 
             // return status code 200
             return Ok(newUsers);

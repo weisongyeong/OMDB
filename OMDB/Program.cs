@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using OMDB.Data;
 using OMDB.Models.Authentication;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -14,7 +15,8 @@ var config = new ConfigurationBuilder()
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+                .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnStr")));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

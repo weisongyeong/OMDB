@@ -9,6 +9,7 @@ const context =  [
     "/api/movies",
     "/api/movieratings",
     "/api/movielinks",
+    "/api/favourites",
     "/api/settings"
 ];
 

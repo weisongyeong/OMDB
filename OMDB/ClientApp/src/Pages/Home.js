@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import { MovieURLContext } from '../index'
 import { toast } from "react-toastify";
-import Loading from "../Component/Loading";
+import Loading from "../Components/Loading";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -11,7 +11,7 @@ const Home = () => {
     const usenavigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const url = useContext(MovieURLContext);
-    const [lastUrl, setLastUrl] = useState(url.popmovURL);
+    const [homeUrl, setHomeUrl] = useState(url.popmovURL);
     const [movies, setMovies] = useState([]);
     const [pageData, setPageData] = useState();
     const [totalPages, setTotalPages] = useState();
@@ -20,7 +20,6 @@ const Home = () => {
     const [prevPageNum, setPrevPageNum] = useState();
     const [nextPageDisabled, setNextPageDisabled] = useState();
     const [prevPageDisabled, setPrevPageDisabled] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         let username = sessionStorage.getItem('username');
@@ -30,10 +29,10 @@ const Home = () => {
 
         // fetch movies data via tmdb api
         async function fetchMovies() {
-            const res = await axios.get(lastUrl);
+            const res = await axios.get(homeUrl);
             let movies = res.data.results;
             if (movies == '') {
-                toast.error('No Movies Found');
+                toast.error('No movies found');
                 return;
             }
 
@@ -42,7 +41,7 @@ const Home = () => {
         }
         fetchMovies()
         setLoading(true);
-    }, [lastUrl]);
+    }, [homeUrl]);
 
 
     // update page number
@@ -67,12 +66,6 @@ const Home = () => {
         setPrevPageDisabled(prevPageNum < 1);
     }, [prevPageNum]);
 
-    // search movie
-    const SearchMovie = (e) => {
-        e.preventDefault();
-        searchTerm ? setLastUrl(url.searchURL + '&query=' + searchTerm) : setLastUrl(url.popmovURL);
-    }
-
     // page button control
     const ToNextPage = (e) => {
         e.preventDefault();
@@ -89,12 +82,12 @@ const Home = () => {
     }
 
     function pageCall(page) {
-        let urlSplit = lastUrl.split('?');
+        let urlSplit = homeUrl.split('?');
         let queryParams = urlSplit[1].split('&');
         let key = queryParams[queryParams.length - 1].split('=');
         if (key[0] != 'page') {
-            let currUrl = lastUrl + '&page=' + page;
-            setLastUrl(currUrl);
+            let currUrl = homeUrl + '&page=' + page;
+            setHomeUrl(currUrl);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             key[1] = page.toString();
@@ -102,83 +95,37 @@ const Home = () => {
             queryParams[queryParams.length - 1] = a;
             let b = queryParams.join('&');
             let currUrl = urlSplit[0] + '?' + b;
-            setLastUrl(currUrl);
+            setHomeUrl(currUrl);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-
-    // authorized link for admin
-    const AuthorizedLink = ({IsAdmin}) => {
-        if (IsAdmin) {
-            return (
-                <>
-                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/create-new-user">Create New User</Link>
-                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/register-admin">Create New Admin</Link>
-                    <Link className="block text-gray-400 text-center hover:text-white rounded w-full px-2 py-1 tracking-wider select-none" to="/settings">Settings</Link>
-                </>
-            )
         }
     }
 
     return (
         <>
-            {/*NAVBAR*/}
-            <nav className="bg-gray-900 h-16 flex text-white font-semibold px-10 justify-between items-center">
-                <div className='flex items-center gap-4'>
-                    <div>
-                        <a className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-red-200 to-yellow-400 select-none" >OMDB</a>
-                    </div>
-                    <div className="flex gap-4">
-                        <button className=" text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" onClick={(e) => setLastUrl(url.popmovURL)}>Home</button>
-                        <Link className=" text-gray-400 hover:text-white rounded px-2 py-1 tracking-wider select-none" to="/new-movies">New Movies</Link>
-                    </div>
-                </div>
-                <div className="group rounded text-gray-400 relative inline-block w-[15rem] select-none">
-                    <div className="group-hover:text-white text-center py-2">{sessionStorage.getItem('username')}</div>
-                    <div className="group-hover:flex hidden absolute bg-gray-900 flex-col w-full rounded-md py-2">
-                        <AuthorizedLink IsAdmin={sessionStorage.getItem('role')} />
-                        <Link className= "text-gray-400 text-center hover:text-white rounded w-full px-3 py-1 tracking-wider select-none" to="/login">Logout</Link>
-                    </div>
-                </div>
-            </nav>
-
             {/*MOVIES AREA*/}
             <main className="px-4 pb-6">
-                <div className="flex flex-between items-center justify-between">
-
-                    {/*MOVIE AREA TITLE*/}
-                    {
-                        lastUrl.startsWith(url.popmovURL) ?
-                            <h1 className="mx-28 my-10 text-3xl font-bold text-white">Popular Movies</h1>
-                            :
-                            <h1 className="mx-28 my-10 text-3xl font-bold text-white">Searching for '{searchTerm}'</h1>
-                    }
-
-                    {/*SEARCH BAR*/}
-                    <form onSubmit={SearchMovie} >
-                        <input type="text"
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search"
-                            className="mx-28 my-10 py-1 px-2 bg-gray-700 border rounded-xl border-[#333] text-[#999] placeholder-[#999] focus:outline-none focus:border-[#9ecaed] focus:shadow-[0_0_10px_#92caed]"
-                        />
-                    </form>
-
-                </div>
+                <h1 className="mx-28 my-10 text-3xl font-bold text-white">Popular Movies</h1>
                 <div className="flex justify-center flex-wrap">
                     {
                         loading ? movies && movies.map(movie => {
-                            const { id, title, poster_path, vote_average, overview } = movie;
+                            const { id, title, genre_ids, overview, poster_path, vote_average} = movie;
                             let imgURL = `${url.imgBaseURL + poster_path}`;
                             let color = vote_average > 7 ? 'lightgreen' : (vote_average < 5 ? 'red' : 'orange');
+                            let genres = genre_ids.map(id => {
+                                let genre = url.genres.find(genre => genre.id === id);
+                                return genre.name;
+                            }).join('|');
+                            let movieInfo = { title, genres, imgURL, description: overview };
+                            
                             return (
                                 <Link
                                     key={id}
                                     className="m-4 rounded"
-                                    to={`/movie/${title}/${id}`}
+                                    to={`/movie/${id}`}
+                                    state={ movieInfo }
                                 >
                                     <div className="w-56 text-base rounded bg-black transition duration-300 ease-in-out hover:transform hover:scale-125">
-                                        <img className="w-full" src={poster_path ? imgURL : "https://via.placeholder.com/1080x1580"} alt={title}></img>
+                                        <img className="w-full rounded" src={poster_path ? imgURL : "https://via.placeholder.com/1080x1580"} alt={title}></img>
                                         <div className="flex justify-between items-center p-2 h-20">
                                             <div className="my-1 mx-2 font-bold text-white">{title}</div>
                                             <div className="p-1 rounded font-bold" style={{ color: color }}>{vote_average}</div>

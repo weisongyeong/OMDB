@@ -7,7 +7,9 @@ public partial class LinkModel
 {
     public int MovieId { get; set; }
 
-    public int ImdbId { get; set; }
+    public int? ImdbId { get; set; }
 
     public int? TmdbId { get; set; }
+
+    public virtual MovieModel Movie { get; set; } = null!;
 }

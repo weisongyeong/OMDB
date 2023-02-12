@@ -31,8 +31,10 @@ Important features of this OMDB application can be cateogorized into authority-a
 
 ### Movie-app-related features
 - View different movies
-- Check movie' title and rating
-- Click movie image to view similar movies
+- View movie's title, genres, poster and description
+- View similar movies to certain specific movie
+- Give movie ratings
+- Add movie to favourites
 - Search for a movie
 
 ### Authority-and-authentication features
@@ -40,9 +42,11 @@ Important features of this OMDB application can be cateogorized into authority-a
   a. Create a new general user account
   b. Create an admin account
   c. Change the similarity algorithm and minimum number of sample data in settings.
-  d. Utilize all movie-app-related features
+  d. Change Password
+  e. Utilize all movie-app-related features
 2. General user can do
-  a. Utilize all movie-app-related features
+  a. Change Password
+  b. Utilize all movie-app-related features
 
 Kindly take note that all users are required to have an account for this movie app. 
 
@@ -50,6 +54,8 @@ Kindly take note that all users are required to have an account for this movie a
 When they run this web application, the app will first redirect the page to a login page where users can key in their username and password to login this movie application. If users don't have an account, they can register the account by clicking the "New User?' link located at the bottom of the form. Registeration form contains three main fields which are username, email and password.
   
 After they finish a registration, users would be redirected back to the login page. From there, they can insert the username and password they just created and only they login to the movie app and authenticated to fully utilize the general-user features of the movie application.
+
+When user login to the web application, the system will display the popular movies in the home page. There are also links to 'New Movies', 'Search' and 'Favourites' on the navigation bar. The 'New Movies' page will display the recently added movies, 'Search' page will allow user to search for certain movie, and the 'Favourites' page will display all the favourite movies user added. Each of the movies would be displayed as a movie card. When user click on the movie card, user would be redirected to the movie page which will display the movie's poster, title, genres, description and similar movies if available. There are also the 'five stars' icon that allow user to rate the movies and 'favourite' icon that allow user to add the movie to favourites. 
 
 ### For Admin User
 Admin user can login this movie application by using an pre-existing admin account and password.

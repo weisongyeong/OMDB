@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMDB.Data;
 using OMDB.Models.MovieDomain;
-using OMDB.Models.MovieDTO;
+using OMDB.Models.MovieDTO.Setting;
 
 namespace OMDB.Controllers
 {

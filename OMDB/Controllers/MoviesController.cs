@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using OMDB.Data;
 using OMDB.Models.Authentication;
 using OMDB.Models.MovieDomain;
-using OMDB.Models.MovieDTO;
+using OMDB.Models.MovieDTO.Movie;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -36,38 +38,61 @@ namespace OMDB.Controllers
         {
             var movies = _context.Movies;
             var links = _context.Links;
-            var newMovies = await (from movie in movies
+            var latestMovies = await (from movie in movies
                                    join link in links
                                    on movie.MovieId equals link.MovieId
                                    orderby movie.MovieId descending
                                    select new
                                    {
-                                       MovieId = link.TmdbId,
+                                       link.TmdbId,
+                                       movie.MovieId,
                                        movie.Title,
-                                       movie.Genres
+                                       movie.Genres,
+                                       movie.PosterPath,
+                                       movie.Description
                                    })
                                 .Take(20)
                                 .ToListAsync();
 
-            return Ok(newMovies);
+            return Ok(latestMovies);
         }
 
         // create
         [HttpPost]
         [Route("insert-movie")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> InsertMovie(MovieModel movieModel)
+        public async Task<IActionResult> InsertMovie(InsertMovieModel movieModel)
         {
-            var movie = new MovieModel()
+            try
             {
-                Title = movieModel.Title,
-                Genres = movieModel.Genres
-            };
+                // copy image file to wwwroot/posters
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + movieModel.Poster.FileName;
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "ClientApp\\public\\posters", uniqueFileName);
+                await movieModel.Poster.CopyToAsync(new FileStream(path, FileMode.Create));
 
-            await _context.Movies.AddAsync(movie);
-            await _context.SaveChangesAsync();
+                var movie = new MovieModel()
+                {
+                    Title = movieModel.Title,
+                    Genres = movieModel.Genres,
+                    PosterPath = uniqueFileName,
+                    Description = movieModel.Description,
+                    Link = new LinkModel()
+                    {
+                        ImdbId = null,
+                        TmdbId = null
+                    }
+                };
 
-            return Ok(new Response { Status = "Success", Message = "Movie inserted Successfully" });
+                await _context.Movies.AddAsync(movie);
+                await _context.SaveChangesAsync();
+
+
+                return Ok(new Response { Status = "Success", Message = "Movie inserted Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+            }
         }
 
         // read
@@ -79,32 +104,10 @@ namespace OMDB.Controllers
 
             if (movie == null)
             {
-                return NotFound();
+                return Ok(new Response { Status = "Success", Message = "Movie not found" });
             }
 
             return Ok(movie);
-        }
-
-        // update
-        [HttpPut]
-        [Route("{id:int}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateMovie([FromRoute] int id, UpdateMovieModel movieModel)
-        {
-            var movie = await _context.Movies.FindAsync(id);
-
-            if (movie != null)
-            {
-                movie.Title = movieModel.Title;
-                movie.Genres = movieModel.Genres;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(movie);
-            }
-
-            // return status code 404
-            return NotFound();
         }
 
         // delete
@@ -122,8 +125,7 @@ namespace OMDB.Controllers
                 return Ok(new Response { Status = "Success", Message = "Movie Deleted Successfully" });
             }
 
-            // return status code 404
-            return NotFound();
+            return Ok(new Response { Status = "Success", Message = "Movie not found" });
         }
 
         [HttpGet]
@@ -143,13 +145,9 @@ namespace OMDB.Controllers
             var cleanedDSet = await (from r in ratings
                                      join m in movies
                                      on r.MovieId equals m.MovieId
-                                     into movieRatingTemps
-                                     from movieRatingTemp in movieRatingTemps
                                      join l in tmdbLinks
-                                     on movieRatingTemp.MovieId equals l.MovieId
-                                     into tmdbMovieRatingTemps
-                                     from tmdbMovieRatingTemp in tmdbMovieRatingTemps
-                                     group r by new { r.UserId, tmdbMovieRatingTemp.TmdbId, movieRatingTemp.Title}
+                                     on r.MovieId equals l.MovieId
+                                     group r by new { r.UserId, l.TmdbId, m.Title}
                                      into movieGroup
                                      select new
                                      {

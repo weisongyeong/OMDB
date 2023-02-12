@@ -77,13 +77,13 @@ namespace OMDB.Controllers
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token), // serializes a JwtSecurityToken into a JWT
                     expiration = token.ValidTo,
-                    Id = userId,
+                    id = userId,
                     role = userRoles
                 });
             }
 
-            // return status code 401
-            return Unauthorized();
+            // login failure
+            return Ok(new Response { Status = "Error", Message = "Invalid Username or Password!" });
         }
 
         [HttpPost]
@@ -168,21 +168,21 @@ namespace OMDB.Controllers
         {
             var user = await userManager.FindByIdAsync(id);
 
-            // return status code 500 if user does not exists
+            // return error message if user does not exist
             if (user == null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User does not exists" });
+                return Ok(new Response { Status = "Error", Message = "User does not exists" });
             }
 
             // change password
             var result = await userManager.ChangePasswordAsync(user, passwordModel.CurrentPassword, passwordModel.NewPassword);
 
-            // return status code 500 for failure
+            // return error message if password updated unsuccessfully
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Password changing failed! Please check user details and try again." });
+                return Ok(new Response { Status = "Error", Message = "Password updated unsuccessfully! Please check user details and try again." });
 
             // return status code 200 for success
-            return Ok(new Response { Status = "Success", Message = "Password changed successfully!" });
+            return Ok(new Response { Status = "Success", Message = "Password updated successfully!" });
         }
 
 

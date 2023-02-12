@@ -26,10 +26,17 @@ namespace OMDB.Controllers
         public async Task<IActionResult> GetLinks()
         {
             var links = _context.Links;
-
+            var movies = _context.Movies;
             var lastFewMovieLinks = await (from link in links
+                                           join movie in movies
+                                           on link.MovieId equals movie.MovieId
                                            orderby link.MovieId descending
-                                           select link)
+                                           select new
+                                           {
+                                               link.TmdbId,
+                                               link.MovieId,
+                                               movie.Title
+                                           })
                                            .Take(10)
                                            .ToListAsync();
 

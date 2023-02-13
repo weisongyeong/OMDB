@@ -35,8 +35,9 @@ const Home = () => {
                 toast.error('No movies found');
                 return;
             }
-
-            setMovies(res.data.results);
+            
+            let movies10 = res.data.results.slice(0, 10);
+            setMovies(movies10);
             setPageData(res.data);
         }
         fetchMovies()
